@@ -35,6 +35,8 @@
 
 //
 
+using System.Formats.Asn1;
+
 int Sleep = 25;
 string print(string printer)
 {
@@ -103,9 +105,9 @@ List<Enemy> enemyNumbers = [wolf, wolf, wolf];
 void Fight(string enemyName, int enemyHealth, List<Attack> enemyAttacks, List<Enemy> enemyNumbers, 
            string playerName, int playerHealth, List<Attack> playerAttacks)
 {
-    while(enemyHealth >= 0 && playerHealth >= 0)
+    while(enemyHealth >= 0 && playerHealth >= 0 || enemyNumbers.Count > 0)
     {
-
+        int basehealth = enemyHealth;
         Console.WriteLine($"name: {enemyName}: health: ({enemyHealth}) amount: ({enemyNumbers.Count})");
 
         string attackChoice = "0";
@@ -116,7 +118,7 @@ void Fight(string enemyName, int enemyHealth, List<Attack> enemyAttacks, List<En
             int i = 1;
             foreach(Attack A in playerAttacks)
             {
-                Console.WriteLine($"{i}: {A.Name} ({A.MinDamage} --- {A.MaxDamage}) (Hitchance = {0 + A.HitChance})");
+                Console.WriteLine($"{i}: {A.Name} ({A.MinDamage} --- {A.MaxDamage}) (Hitchance = {0 + A.HitChance}%)");
                 i++;
             }
             attackChoice = Console.ReadLine();
@@ -131,6 +133,7 @@ void Fight(string enemyName, int enemyHealth, List<Attack> enemyAttacks, List<En
             {
                 int damage = Random.Shared.Next(attack.MinDamage, attack.MaxDamage);
                 enemyHealth -= damage;
+                print($"{playerName} deals {damage} to {enemyName}");
                 print($"{enemyName} now has {enemyHealth} health left");
 
             }
@@ -139,17 +142,20 @@ void Fight(string enemyName, int enemyHealth, List<Attack> enemyAttacks, List<En
                 print($"{playerName} missed");
             }
 
-            if(enemyHealth <= 0 && enemyNumbers.Count > 0)
-            {
-                print($"{enemyName} is dead");
-                enemyNumbers.Remove(enemyNumbers.ElementAt(enemyNumbers.Count-1));
-            }
-            
-            else if (enemyHealth <=0 && enemyNumbers.Count == 0)
+            if (enemyNumbers.Count == 0)
             {
                 print($"You won there are {enemyNumbers.Count} enemies left");
                 break;
             }
+            else if(enemyHealth <= 0 && enemyNumbers.Count > 0)
+            {
+                print($"{enemyName} {enemyNumbers.Count} is dead");
+                enemyNumbers.Remove(enemyNumbers.ElementAt(enemyNumbers.Count-1));
+                
+                enemyHealth = basehealth;
+            }
+            
+           
 
             int i = 0;
             foreach (Enemy e in enemyNumbers)
@@ -159,26 +165,20 @@ void Fight(string enemyName, int enemyHealth, List<Attack> enemyAttacks, List<En
                 Attack enemyAttack = enemyAttacks.ElementAt(number);
                 int damage = Random.Shared.Next(enemyAttack.MinDamage, enemyAttack.MaxDamage);
                 playerHealth -= damage;
-                print($"{e.Enemyname} {i+1}: uses {enemyAttack.Name}");
-                print($"{e.Enemyname} deals {damage} to {playerName}");
+                print($"{e.EnemyName} {i+1}: uses {enemyAttack.Name}");
+                print($"{e.EnemyName} deals {damage} to {playerName}");
                 print($"{playerName}s health is now {playerHealth}");
+                Console.WriteLine();
+                Console.WriteLine();
                 Thread.Sleep(200);
-
-
-
-
-
-
-
                 i++;
             }
         }
-        Console.ReadLine();
         
         
     }
 }
-Fight(wolf.Enemyname, wolf.EnemyHealth, wolf.Attacks, enemyNumbers, 
+Fight(wolf.EnemyName, wolf.EnemyHealth, wolf.Attacks, enemyNumbers, 
       Gandalf.PlayerName, Gandalf.PlayerHealth, Gandalf.Playerattacks);
 
 
