@@ -3,39 +3,7 @@
 
 
 
-//fighter game
 
-
-
-//class enemy(enemyDamage, enemyHealth, critChance)
-
-
-
-// den här koden kommer att ta en class av enemy som innehåller damage health och critchance,  
-// sedan kommer den ta en mängd av enemies och slumpa mellan olika underklasser av enemies,
-// sedan kommer playern gå igenom leveln och steg för steg döda enemies tills leveln är slut,
-
-//function level(class enemy, mängd enemies, random slump mellan olika enemies)
-//{
-// 
-// enemy.enemyDamage = random.shared.next(minDamage, maxDamage)
-//  
-//
-//}
-
-
-
-// Charaktär som du kör som en class
-// charcter(damage, health, critchance, mera?)
-
-
-//funktion för fights och damage du tar
-//function fight(charcter, enemy, mängd enemies)
-
-
-//
-
-using System.Formats.Asn1;
 
 int Sleep = 25;
 string print(string printer)
@@ -86,7 +54,7 @@ Character Gandalf = new Character(
             hitChance: 50
         ),
         new Attack(
-            name: "Nopassing",
+            name: "YOU SHALL NOT PASS!!!",
             minDamage: 30,
             maxDamage: 50,
             hitChance: 25
@@ -100,7 +68,94 @@ Character Gandalf = new Character(
 
     ]
 );
+Character Aragorn = new Character(
+    playerName: "Aragorn",
+    playerHealth: 150,
+    playerattacks: 
+    [
+        new Attack(
+            name: "Isildurs slash",
+            minDamage: 15,
+            maxDamage: 30,
+            hitChance: 55
+        ),
+        new Attack(
+            name: "Slash",
+            minDamage: 10,
+            maxDamage: 20,
+            hitChance: 75
+        ),
+        new Attack(
+            name: "Bane of swords",
+            minDamage: 30,
+            maxDamage: 65,
+            hitChance: 10
+
+        )
+
+    ]
+);
+List<Character> startCharacters = [Gandalf, Aragorn];
 List<Enemy> enemyNumbers = [wolf, wolf, wolf];
+string characterChoice = "";
+Dictionary<string, int> backpack = []; 
+while (!int.TryParse(characterChoice, out int characterChoiceIntFail) || characterChoiceIntFail > startCharacters.Count && characterChoiceIntFail < 1)
+{
+    print("Which character do you want to choose");
+    int e = 1;
+    foreach (Character C in startCharacters)
+    {
+
+        print($"Charcter {e}");
+        print($"Name: ({C.PlayerName})");
+        print($"Health: ({C.PlayerHealth})");
+        int i = 1;
+        foreach ( Attack AA in C.Playerattacks)
+        {
+            print($"Attack {i}");
+            print($"Name: ({AA.Name})");
+            print($"damage: ({AA.MinDamage} - {AA.MaxDamage})");
+            print($"Hitchance: ({AA.HitChance})");
+            i++;
+        }
+        Console.WriteLine("");
+        e++;
+    }
+    characterChoice = Console.ReadLine();
+}
+if (int.TryParse(characterChoice, out int characterChoiceInt) || characterChoiceInt < startCharacters.Count && characterChoiceInt > 0)
+{
+    print("Do you want to go on a quest?");
+    print("1. Yes");
+    print("2. No");
+    string questChoice = Console.ReadLine();
+    choiceParse(questChoice);
+    if (int.TryParse(questChoice, out int questChoiceInt) && questChoiceInt == 1)
+    {
+        print("You walk a bit travelling over a hill and see some wolves");
+        print("Do you want to fight them?");
+        Console.WriteLine("1. Yes");
+        Console.WriteLine("2. No");
+        string wolfFightChoice = Console.ReadLine();
+        choiceParse(wolfFightChoice);
+        if (int.TryParse(wolfFightChoice, out int wolfFightChoiceInt) && wolfFightChoiceInt == 1)
+        {
+            Fight(wolf.EnemyName, wolf.EnemyHealth, wolf.Attacks, enemyNumbers, 
+                startCharacters.ElementAt(characterChoiceInt -1).PlayerName, startCharacters.ElementAt(characterChoiceInt-1).PlayerHealth, startCharacters.ElementAt(characterChoiceInt-1).Playerattacks);
+            if (startCharacters.ElementAt(characterChoiceInt -1).PlayerHealth > 0)
+            {
+                backpack.Add("Meat", 6);
+                backpack.Add("Wolf fur", 3);
+                print("You start skining the wolves");
+                print("The meat and pelt are stored in your backpack");
+                
+
+            }
+        }
+       
+    }
+}
+
 
 void Fight(string enemyName, int enemyHealth, List<Attack> enemyAttacks, List<Enemy> enemyNumbers, 
            string playerName, int playerHealth, List<Attack> playerAttacks)
@@ -172,15 +227,27 @@ void Fight(string enemyName, int enemyHealth, List<Attack> enemyAttacks, List<En
                 Console.WriteLine();
                 Thread.Sleep(200);
                 i++;
-            }
-        }
-        
-        
-    }
-}
-Fight(wolf.EnemyName, wolf.EnemyHealth, wolf.Attacks, enemyNumbers, 
-      Gandalf.PlayerName, Gandalf.PlayerHealth, Gandalf.Playerattacks);
 
+            }
+            if(playerHealth <= 0)
+            {
+                break;
+            }
+        }    
+    }
+    return;
+}
+
+void choiceParse(string choice)
+{
+    int choiceIntFail;
+    while (!int.TryParse(choice, out choiceIntFail))
+    {
+        choice = Console.ReadLine();
+    }
+
+    return;
+}
 
 
 
