@@ -5,9 +5,10 @@
 
 
 
-int Sleep = 25;
+
 string print(string printer)
 {
+    int Sleep = 25;
     for (int i = 0; i < printer.Length; i++)
     {
         Console.Write(printer.ElementAt(i));
@@ -21,10 +22,9 @@ string print(string printer)
         }
     }
     Console.WriteLine("");
-    Sleep = 25;
     return printer;
 }
-
+// en class för mina enemies så jag kan göra nya vart som helst och när som helst i koden.
 Enemy wolf= new Enemy(
     enemyName: "wolf", 
     enemyHealth: 25, 
@@ -95,10 +95,42 @@ Character Aragorn = new Character(
 
     ]
 );
+// listan baseattacks och karaktären baseCharacter är så man kan skapa egna karaktärer. 
+List<Attack> baseAttacks = [];
+Character baseCharacter = new Character(
+    playerName: "",
+    playerHealth: 0,
+    playerattacks: baseAttacks
+
+);
+
+// jag använder listorna för jag vill kunna ändra innehållet i listorna.
 List<Character> startCharacters = [Gandalf, Aragorn];
 List<Enemy> enemyNumbers = [wolf, wolf, wolf];
+
+print("Do you want to create a character?");
+print("1. Yes");
+print("2. No");
+string  charcterCreateChoice = Console.ReadLine();
+int charcterCreateChoiceInt;
+while (!int.TryParse(charcterCreateChoice, out charcterCreateChoiceInt) || charcterCreateChoiceInt >= 3 && charcterCreateChoiceInt <= 0)
+{
+    Console.Clear();
+    print("Do you want to create a character?");
+    print("1. Yes");
+    print("2. No");
+    charcterCreateChoice = Console.ReadLine();
+}
+if(int.TryParse(charcterCreateChoice, out charcterCreateChoiceInt) && charcterCreateChoiceInt == 1)
+{
+    startCharacters.Add(CharcterCreator(baseCharacter, baseAttacks));
+}
+
 string characterChoice = "";
+// en dictionary eftersom jag vill kunna hålla strings med värden kopplade till sig som exempel en string med en mängd av den stringen.
 Dictionary<string, int> backpack = []; 
+
+// en while loop som printar ut alla olika karaktärer och deras stats och attacker
 while (!int.TryParse(characterChoice, out int characterChoiceIntFail) || characterChoiceIntFail > startCharacters.Count && characterChoiceIntFail < 1)
 {
     print("Which character do you want to choose");
@@ -123,6 +155,7 @@ while (!int.TryParse(characterChoice, out int characterChoiceIntFail) || charact
     }
     characterChoice = Console.ReadLine();
 }
+
 if (int.TryParse(characterChoice, out int characterChoiceInt) || characterChoiceInt < startCharacters.Count && characterChoiceInt > 0)
 {
     print("Do you want to go on a quest?");
@@ -138,11 +171,13 @@ if (int.TryParse(characterChoice, out int characterChoiceInt) || characterChoice
         Console.WriteLine("2. No");
         string wolfFightChoice = Console.ReadLine();
         choiceParse(wolfFightChoice);
+        bool Win = false;
         if (int.TryParse(wolfFightChoice, out int wolfFightChoiceInt) && wolfFightChoiceInt == 1)
         {
-            Fight(wolf.EnemyName, wolf.EnemyHealth, wolf.Attacks, enemyNumbers, 
-                startCharacters.ElementAt(characterChoiceInt -1).PlayerName, startCharacters.ElementAt(characterChoiceInt-1).PlayerHealth, startCharacters.ElementAt(characterChoiceInt-1).Playerattacks);
-            if (startCharacters.ElementAt(characterChoiceInt -1).PlayerHealth > 0)
+            Win = Fight(wolf.EnemyName, wolf.EnemyHealth, wolf.Attacks, enemyNumbers, wolf,
+                startCharacters.ElementAt(characterChoiceInt -1).PlayerName, startCharacters.ElementAt(characterChoiceInt-1).PlayerHealth, startCharacters.ElementAt(characterChoiceInt-1).Playerattacks,
+                Win);
+            if (Win == true)
             {
                 backpack.Add("Meat", 6);
                 backpack.Add("Wolf fur", 3);
@@ -151,20 +186,26 @@ if (int.TryParse(characterChoice, out int characterChoiceInt) || characterChoice
                 
 
             }
+            else if (Win == false)
+            {
+                print("You lost the quest...");
+                print("if you want to play again restart");
+            }
         }
        
     }
 }
 
-
-void Fight(string enemyName, int enemyHealth, List<Attack> enemyAttacks, List<Enemy> enemyNumbers, 
-           string playerName, int playerHealth, List<Attack> playerAttacks)
+// en funktion som utför en fight där om man vinner får man en bool som ger true och om man förlorar blir boolen false.
+bool Fight(string enemyName, int enemyHealth, List<Attack> enemyAttacks, List<Enemy> enemyNumbers, Enemy enemyType,
+           string playerName, int playerHealth, List<Attack> playerAttacks, bool didYouWin)
 {
     while(enemyHealth >= 0 && playerHealth >= 0 || enemyNumbers.Count > 0)
     {
-        int basehealth = enemyHealth;
+        int basehealth = enemyType.EnemyHealth;
         Console.WriteLine($"name: {enemyName}: health: ({enemyHealth}) amount: ({enemyNumbers.Count})");
 
+        //kollar vilken attack som man vill använda. Kan göra det till en funktion kanske och spara utrymme.
         string attackChoice = "0";
         int attackChoiceInt;
         while(!int.TryParse(attackChoice, out attackChoiceInt) || attackChoiceInt< 1 || attackChoiceInt > playerAttacks.Count)
@@ -178,7 +219,7 @@ void Fight(string enemyName, int enemyHealth, List<Attack> enemyAttacks, List<En
             }
             attackChoice = Console.ReadLine();
         }
-
+        // Kollar om attacken man valt träffar eller inte.
         Attack attack = playerAttacks[attackChoiceInt-1];
         if(attack is not null)
         {
@@ -196,22 +237,23 @@ void Fight(string enemyName, int enemyHealth, List<Attack> enemyAttacks, List<En
             {
                 print($"{playerName} missed");
             }
-
-            if (enemyNumbers.Count == 0)
-            {
-                print($"You won there are {enemyNumbers.Count} enemies left");
-                break;
-            }
-            else if(enemyHealth <= 0 && enemyNumbers.Count > 0)
+            if(enemyHealth <= 0 && enemyNumbers.Count > 0)
             {
                 print($"{enemyName} {enemyNumbers.Count} is dead");
                 enemyNumbers.Remove(enemyNumbers.ElementAt(enemyNumbers.Count-1));
                 
                 enemyHealth = basehealth;
             }
+            if (enemyNumbers.Count <= 0)
+            {
+                print($"You won there are {enemyNumbers.Count} enemies left");
+                didYouWin = true;
+                break;
+            }
+
             
            
-
+            // Hör gör alla enemies som är kvar damage på spelaren.
             int i = 0;
             foreach (Enemy e in enemyNumbers)
             {
@@ -231,25 +273,111 @@ void Fight(string enemyName, int enemyHealth, List<Attack> enemyAttacks, List<En
             }
             if(playerHealth <= 0)
             {
+                didYouWin = false;
                 break;
             }
         }    
-    }
-    return;
+    };
+    return didYouWin;
 }
 
-void choiceParse(string choice)
+
+//en funktion för att göra kortare kod på vissa ställen för int.tryparse
+int choiceParse(string choice)
 {
     int choiceIntFail;
     while (!int.TryParse(choice, out choiceIntFail))
     {
         choice = Console.ReadLine();
     }
-
-    return;
+    if(int.TryParse(choice, out int choiceInt))
+    {
+        return choiceInt;    
+    }
+    else
+    {
+        return -1;
+    } 
+    
 }
+//en funktion som gör att man kan skapa en karaktär.
+Character CharcterCreator(Character e, List<Attack> a)
+{
+    //här väljer man namnet
+    Console.WriteLine("What is the name of your character?");
+    e.PlayerName = Console.ReadLine();
+    //här väljer man hur mycket hälsa man ska ha.
+    Console.WriteLine("How much health does your charcter have");
+    string healthChoice = Console.ReadLine();
+    while(!int.TryParse(healthChoice, out int healthChoiceIntFail))
+    {
+        healthChoice = Console.ReadLine();
+    }
+    if(int.TryParse(healthChoice, out int healthChoiceInt))
+    {
+        e.PlayerHealth = healthChoiceInt;
+    }
+    e.Playerattacks = 
+    [
+    ];
+    //kollar hur många attacker man vill ha
+    Console.WriteLine("How many attacks you want?");
+    string attackamount = Console.ReadLine();
+    while(choiceParse(attackamount) >= 5 && choiceParse(attackamount) <=0)
+    {
+        Console.Clear();
+        Console.WriteLine("How many attacks you want?");
+        attackamount = Console.ReadLine();
+    }
+    int val = choiceParse(attackamount);
+    //här väljer man stats för den mängd attcker man valde.
+    for (int i = 0; i < val; i++)
+    {
+        //namnet på attacken
+        Console.WriteLine($"What should be the name of attack number {i + 1}");
+        string characterName = Console.ReadLine();
+        //min damage på attacken
+        Console.WriteLine($"What should be the minimum damage of attack number {i + 1}");
+        string minDamageChoice = Console.ReadLine();
+        int minDamageChoiceInt;
+        while(!int.TryParse(minDamageChoice, out minDamageChoiceInt))
+        {
+            minDamageChoice = Console.ReadLine();
+        }
+        //max damage på attacken
+        Console.WriteLine($"What should be the maximum damage of attack number {i + 1}");
+        string maxDamageChoice = Console.ReadLine();
+        int maxDamageChoiceInt;
+        while(!int.TryParse(maxDamageChoice, out maxDamageChoiceInt))
+        {
+            maxDamageChoice = Console.ReadLine();
+        }
+        //hitchancen på attacken
+        Console.WriteLine($"What should be the hitchance of attack number {i + 1}");
+        string hitChanceDamageChoice = Console.ReadLine();
+        int hitChanceDamageChoiceInt;
+        while(!int.TryParse(hitChanceDamageChoice, out hitChanceDamageChoiceInt))
+        {
+            hitChanceDamageChoice = Console.ReadLine();
+        }
+        // här lägger jag in alla attacker i listan av attacker.
+        a.Add (new Attack (
+            name: characterName,
+            minDamage: minDamageChoiceInt,
+            maxDamage:maxDamageChoiceInt,
+            hitChance:hitChanceDamageChoiceInt
+        ));
+        
+    }
 
-
+    for (int i = 1; i < val; i++)
+    {
+        //Här lägger vi in listan som karaktärens attacklista
+        e.Playerattacks = a;
+    };
+    return e;
+    
+}
 
 
 
