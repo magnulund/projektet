@@ -183,7 +183,8 @@ if (int.TryParse(characterChoice, out int characterChoiceInt) || characterChoice
                 backpack.Add("Wolf fur", 3);
                 print("You start skining the wolves");
                 print("The meat and pelt are stored in your backpack");
-                
+                Console.WriteLine("Not finished with story yet");
+                Console.ReadLine();
 
             }
             else if (Win == false)
@@ -192,7 +193,17 @@ if (int.TryParse(characterChoice, out int characterChoiceInt) || characterChoice
                 print("if you want to play again restart");
             }
         }
+        else
+        {
+            Console.WriteLine("Not finished with story yet");
+            Console.ReadLine();
+        }
        
+    }
+    else
+    {
+        Console.WriteLine("Not finished with story yet");
+        Console.ReadLine();
     }
 }
 
@@ -257,9 +268,11 @@ bool Fight(string enemyName, int enemyHealth, List<Attack> enemyAttacks, List<En
             int i = 0;
             foreach (Enemy e in enemyNumbers)
             {
-
+                // ett nummer som väljer vilken attack enemyn just nu ska använda.
                 int number = Random.Shared.Next(0, enemyAttacks.Count);
+                //gör en attack som tar från deras attacker på platsen som valdes förut
                 Attack enemyAttack = enemyAttacks.ElementAt(number);
+                //slumpar ett värde mellan min damage och max damage 
                 int damage = Random.Shared.Next(enemyAttack.MinDamage, enemyAttack.MaxDamage);
                 playerHealth -= damage;
                 print($"{e.EnemyName} {i+1}: uses {enemyAttack.Name}");
